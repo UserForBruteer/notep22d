@@ -2,19 +2,41 @@ import tkinter as tk
 from tkinter import filedialog, messagebox
 from tkinter import ttk
 import sys
+import codecs
+import keyboard
+import json
+import random
+import string
+global font
+global bag
+global fag
+global inbag
+font = "arial"
+bag = "white"
+fag = "black"
+inbag = "white"
+def import_theme():
+    file_path = filedialog.askopenfilename(defaultextension=".json", filetypes=[("JSON Files", "*.json")])
+    if file_path:
+        with open(file_path, 'r') as theme_file:
+            theme_data = json.load(theme_file)
+            apply_theme(theme_data)
+
 def new_tab():
     text = tk.Text(tab_control, wrap="word")
     tab_control.add(text, text="Untitled")
     tab_control.select(text)
     text.file_path = None
     text_widgets[text] = True
+    print(text)
     apply_text_style(text)
 
+# В функции open_file:
 def open_file(file_path=None):
     if not file_path:
         file_path = filedialog.askopenfilename(defaultextension=".txt", filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")])
     if file_path:
-        with open(file_path, "r") as file:
+        with codecs.open(file_path, "r", encoding="utf-8") as file:
             content = file.read()
         text = tk.Text(tab_control, wrap="word")
         text.insert("1.0", content)
@@ -24,6 +46,7 @@ def open_file(file_path=None):
         text_widgets[text] = True
         apply_text_style(text)
 
+# В функции save_file:
 def save_file():
     selected_tab = tab_control.select()
     if selected_tab:
@@ -31,16 +54,14 @@ def save_file():
         content = text_widget.get("1.0", tk.END)
 
         if text_widget.file_path:
-            # If the text has a file_path attribute, it means it's an existing file that was opened or saved before.
             file_path = text_widget.file_path
         else:
-            # If the text doesn't have a file_path attribute, it's a new unsaved tab.
             file_path = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")])
 
         if file_path:
-            with open(file_path, "w") as file:
+            with codecs.open(file_path, "w", encoding="utf-8") as file:
                 file.write(content)
-            text_widget.file_path = file_path  # Store the file path for future reference
+            text_widget.file_path = file_path
             tab_control.tab(selected_tab, text=file_path.split("/")[-1])
 
 def close_tab():
@@ -51,69 +72,64 @@ def close_tab():
         del text_widgets[text_widget]  # Use the text_widget itself as the key
 
 def apply_text_style(text_widget):
-    # Define the desired font and other styles here
-    text_widget.configure(font=("Helvetica", 12))
-    text_widget.configure(bg="white", fg="black")
-    text_widget.configure(insertbackground="black")
+    global font, bag, fag, inbag
+    # Определение желаемого шрифта и других стилей здесь
+    text_widget.configure(font=(font, 12))
+    text_widget.configure(bg=bag, fg=fag)
+    text_widget.configure(insertbackground=inbag)
 
-def apply_theme():
-    if len(sys.argv) > 1:
-        file_to_open = sys.argv[1]
-        print("File to open:", file_to_open)
-        open_file(file_to_open)
-    else:
-        new_tab()
-    # Apply custom theme styles to the ttk elements
-    theme = {
-        "TNotebook": {
-            "configure": {
-                "background": "#222222",
-                "tabmargins": [2, 5, 2, 0],
-            },
-            "map": {
-                "background": [("selected", "#ECECEC")],
-            },
-        },
-        "TNotebook.Tab": {
-            "configure": {
-                "padding": [10, 5],
-                "font": ("Helvetica", 11),
-                "background": "#444444",
-                "foreground": "white",
-            },
-            "map": {
-                "background": [("selected", "#ECECEC")],
-            },
-        },
-        "TButton": {
-            "configure": {
-                "font": ("Helvetica", 11),
-                "background": "#666666",
-                "foreground": "white",
-                "relief": tk.FLAT,
-                "borderwidth": 0,
-                "activebackground": "#888888",
-            },
-        },
-        "TLabel": {
-            "configure": {
-                "foreground": "white",
-                "background": "#222222",
-                "font": ("Helvetica", 11),
-            },
-        },
-        "TEntry": {
-            "configure": {
-                "background": "white",
-                "foreground": "black",
-                "font": ("Helvetica", 11),
-            },
-        },
-    }
+    # Добавление стилей для выделенного текста
+    text_widget.tag_configure("sel", background=fag, foreground=bag)
+    text_widget.configure(selectbackground=fag, selectforeground=bag)
 
-    style = ttk.Style()
-    for widget, options in theme.items():
-        style.configure(widget, **options)
+    # Обработчик для двойного щелчка мыши
+    def select_word(event):
+        text_widget.tag_remove("sel", "1.0", tk.END)
+        text_widget.tag_add("sel", "insert wordstart", "insert wordend+1c")
+    
+    text_widget.bind("<Double-Button-1>", select_word)
+    print(f"add style to {text_widget}")
+
+
+def apply_theme(theme_data=None):
+    if theme_data:
+        style = ttk.Style()
+
+        # Сброс темы к значению по умолчанию
+        style.theme_use('default')
+
+        length = random.randint(7, 50)
+        random_text = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(length))
+        style.theme_create(random_text, parent="alt", settings=theme_data)
+        style.theme_use(random_text)
+
+        root.config(bg=theme_data.get("Root", {}).get("configure", {}).get("background"))
+
+        global font, bag, fag, inbag
+        font = theme_data.get("Ttext", {}).get("configure", {}).get("font")
+        bag = theme_data.get("Ttext", {}).get("configure", {}).get("bg")
+        fag = theme_data.get("Ttext", {}).get("configure", {}).get("fg")
+        inbag = theme_data.get("Ttext", {}).get("configure", {}).get("insertbackground")
+
+        # Применение стиля ко всем виджетам текста в Notebook
+        for widget in text_widgets:
+            widget.configure(font=(font, 12))
+            widget.configure(bg=bag, fg=fag)
+            widget.configure(insertbackground=inbag)
+
+def copy_text():
+    widget = root.focus_get()
+    if isinstance(widget, tk.Text):
+        text = widget.get("sel.first", "sel.last")
+        widget.clipboard_clear()
+        widget.clipboard_append(text)
+
+def paste_text():
+    widget = root.focus_get()
+    if isinstance(widget, tk.Text):
+        text = widget.clipboard_get()
+        widget.insert("insert", text)
+
 
 root = tk.Tk()
 root.title("notep22d")
@@ -133,10 +149,23 @@ save_button.pack(side=tk.LEFT, padx=5)
 close_tab_button = ttk.Button(root, text="Close Tab", command=close_tab)
 close_tab_button.pack(side=tk.LEFT, padx=5)
 
+import_theme_button = ttk.Button(root, text="Import Theme", command=import_theme)
+import_theme_button.pack(side=tk.LEFT, padx=5)
 
 text_widgets = {}
 
+def bind_hotkeys():
+    keyboard.add_hotkey('Ctrl+N', new_tab)
+    keyboard.add_hotkey('Ctrl+O', open_file)
+    keyboard.add_hotkey('Ctrl+S', save_file)
+    keyboard.add_hotkey('Ctrl+W', close_tab)
+    keyboard.add_hotkey("Ctrl+C", copy_text)
+    keyboard.add_hotkey("Ctrl+V", paste_text)
 
-apply_theme()
+
+
+apply_theme() # Default theme
+new_tab()
+bind_hotkeys()
 
 root.mainloop()

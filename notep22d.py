@@ -133,15 +133,14 @@ def paste_text():
 
 root = tk.Tk()
 root.title("notep22d")
+tab_control = ttk.Notebook(root)
+tab_control.pack(fill="both", expand=True)
 if len(sys.argv) > 1:
     file_to_open = sys.argv[1]
     print("File to open:", file_to_open)
     open_file(file_to_open)
 else:
     new_tab()
-tab_control = ttk.Notebook(root)
-tab_control.pack(fill="both", expand=True)
-
 new_tab_button = ttk.Button(root, text="New Tab", command=new_tab)
 new_tab_button.pack(side=tk.LEFT, padx=5)
 

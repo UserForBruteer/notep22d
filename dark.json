@@ -1,0 +1,59 @@
+{
+    "Root": {
+        "configure": {
+            "background": "#212121"
+        }
+    },
+    "TNotebook": {
+        "configure": {
+            "background": "#333333",
+            "tabmargins": [2, 5, 2, 0]
+        },
+        "map": {
+            "background": [["selected", "#555555"]]
+        }
+    },
+    "TNotebook.Tab": {
+        "configure": {
+            "padding": [10, 5],
+            "font": ["Helvetica", 11],
+            "background": "#222222",
+            "foreground": "white"
+        },
+        "map": {
+            "background": [["selected", "#555555"]]
+        }
+    },
+    "TButton": {
+        "configure": {
+            "font": ["Helvetica", 11],
+            "background": "#444444",
+            "foreground": "white",
+            "relief": "flat",
+            "borderwidth": 0,
+            "activebackground": "#666666"
+        }
+    },
+    "TLabel": {
+        "configure": {
+            "foreground": "white",
+            "background": "#333333",
+            "font": ["Helvetica", 11]
+        }
+    },
+    "TEntry": {
+        "configure": {
+            "background": "black",
+            "foreground": "white",
+            "font": ["Helvetica", 11]
+        }
+    },
+    "Ttext": {
+        "configure": {
+            "font": "helvetica",
+            "bg": "black",
+            "fg": "white",
+            "insertbackground": "black"
+        }
+    }
+}

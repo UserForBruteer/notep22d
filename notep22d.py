@@ -17,6 +17,7 @@ class PluginManager:
 
     def load_plugins(self, directory, **kwargs):
         directory = os.path.abspath(directory)
+        sys.path.append(directory)
         print(f"Loading plugins from {directory}")
 
         logs_directory = "logs"
@@ -27,7 +28,7 @@ class PluginManager:
             if filename.endswith(".py"):
                 module_name = os.path.splitext(filename)[0]
                 try:
-                    module = importlib.import_module(f"plugins.{module_name}")
+                    module = importlib.import_module(module_name)
                     plugin_class = getattr(module, "Plugin")
                     plugin = plugin_class()
                     self.plugins.append(plugin)
@@ -135,7 +136,6 @@ def apply_theme(theme_data=None):
     if theme_data:
         style = ttk.Style()
 
-        # Сброс темы к значению по умолчанию
         style.theme_use('default')
 
         length = random.randint(7, 50)
@@ -151,7 +151,6 @@ def apply_theme(theme_data=None):
         fag = theme_data.get("Ttext", {}).get("configure", {}).get("fg")
         inbag = theme_data.get("Ttext", {}).get("configure", {}).get("insertbackground")
 
-        # Применение стиля ко всем виджетам текста в Notebook
         for widget in text_widgets:
             widget.configure(font=(font, 12))
             widget.configure(bg=bag, fg=fag)
@@ -206,7 +205,6 @@ def bind_hotkeys():
     keyboard.add_hotkey("Ctrl+V", paste_text)
 
 
-root.iconbitmap("p22dlol.ico")
 plugins_directory = "plugins"
 if not os.path.exists(plugins_directory):
     os.makedirs(plugins_directory)

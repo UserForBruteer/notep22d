@@ -19,7 +19,6 @@ class PluginManager:
         directory = os.path.abspath(directory)
         print(f"Loading plugins from {directory}")
 
-        # Создаем папку "logs", если ее нет
         logs_directory = "logs"
         if not os.path.exists(logs_directory):
             os.makedirs(logs_directory)
@@ -33,17 +32,15 @@ class PluginManager:
                     plugin = plugin_class()
                     self.plugins.append(plugin)
                     print(f"Plugin '{module_name}' loaded successfully.")
-                    # Передаем все переменные в плагин
                     plugin.execute(**kwargs)
                 except Exception as e:
-                    # Записываем ошибку в файл лога
                     error_message = f"Error loading plugin {module_name}: {str(e)}"
                     timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
                     log_file_path = os.path.join(logs_directory, f"{module_name}_error_{timestamp}.log")
                     with open(log_file_path, 'w') as log_file:
                         log_file.write(error_message)
                     print(f"{module_name} not loaded, log about this error is saved in {log_file_path}")
-                    # Показываем сообщение
+
                     messagebox.showerror("Plugin Error", f"{module_name} not loaded. Log about this error is saved in {log_file_path}")
 
 
@@ -77,7 +74,7 @@ def new_tab():
     print(text)
     apply_text_style(text)
 
-# В функции open_file:
+
 def open_file(file_path=None):
     if not file_path:
         file_path = filedialog.askopenfilename(defaultextension=".txt", filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")])
@@ -92,7 +89,6 @@ def open_file(file_path=None):
         text_widgets[text] = True
         apply_text_style(text)
 
-# В функции save_file:
 def save_file():
     selected_tab = tab_control.select()
     if selected_tab:
@@ -115,20 +111,18 @@ def close_tab():
     if current_tab:
         text_widget = tab_control.nametowidget(current_tab)
         tab_control.forget(current_tab)
-        del text_widgets[text_widget]  # Use the text_widget itself as the key
+        del text_widgets[text_widget] 
 
 def apply_text_style(text_widget):
     global font, bag, fag, inbag
-    # Определение желаемого шрифта и других стилей здесь
+
     text_widget.configure(font=(font, 12))
     text_widget.configure(bg=bag, fg=fag)
     text_widget.configure(insertbackground=inbag)
 
-    # Добавление стилей для выделенного текста
     text_widget.tag_configure("sel", background=fag, foreground=bag)
     text_widget.configure(selectbackground=fag, selectforeground=bag)
 
-    # Обработчик для двойного щелчка мыши
     def select_word(event):
         text_widget.tag_remove("sel", "1.0", tk.END)
         text_widget.tag_add("sel", "insert wordstart", "insert wordend+1c")
@@ -219,7 +213,7 @@ if not os.path.exists(plugins_directory):
     
 plugin_manager = PluginManager()
 plugin_manager.load_plugins(plugins_directory)
-apply_theme() # Default theme
+apply_theme()
 bind_hotkeys()
 
 root.mainloop()

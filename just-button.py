@@ -5,7 +5,6 @@ class Plugin:
     def execute(self, **kwargs):
         self.root = kwargs.get('root')
         self.tab_control = kwargs.get('tab_control')
-        # Добавим кнопку на панель
         self.add_button()
 
     def add_button(self):
@@ -13,5 +12,4 @@ class Plugin:
         new_button.pack(side=tk.LEFT, padx=5)
 
     def on_button_click(self):
-        # Обработчик события для кнопки
         print("Plugin Button Clicked!")

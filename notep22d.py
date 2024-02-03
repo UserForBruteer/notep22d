@@ -7,6 +7,52 @@ import keyboard
 import json
 import random
 import string
+import os
+import importlib
+import datetime
+
+class PluginManager:
+    def __init__(self):
+        self.plugins = []
+
+    def load_plugins(self, directory, **kwargs):
+        directory = os.path.abspath(directory)
+        print(f"Loading plugins from {directory}")
+
+        # Создаем папку "logs", если ее нет
+        logs_directory = "logs"
+        if not os.path.exists(logs_directory):
+            os.makedirs(logs_directory)
+
+        for filename in os.listdir(directory):
+            if filename.endswith(".py"):
+                module_name = os.path.splitext(filename)[0]
+                try:
+                    module = importlib.import_module(f"plugins.{module_name}")
+                    plugin_class = getattr(module, "Plugin")
+                    plugin = plugin_class()
+                    self.plugins.append(plugin)
+                    print(f"Plugin '{module_name}' loaded successfully.")
+                    # Передаем все переменные в плагин
+                    plugin.execute(**kwargs)
+                except Exception as e:
+                    # Записываем ошибку в файл лога
+                    error_message = f"Error loading plugin {module_name}: {str(e)}"
+                    timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+                    log_file_path = os.path.join(logs_directory, f"{module_name}_error_{timestamp}.log")
+                    with open(log_file_path, 'w') as log_file:
+                        log_file.write(error_message)
+                    print(f"{module_name} not loaded, log about this error is saved in {log_file_path}")
+                    # Показываем сообщение
+                    messagebox.showerror("Plugin Error", f"{module_name} not loaded. Log about this error is saved in {log_file_path}")
+
+
+class PluginData:
+    def __init__(self, root, tab_control):
+        self.root = root
+        self.tab_control = tab_control
+
+text_widgets = {}
 global font
 global bag
 global fag
@@ -156,7 +202,6 @@ close_tab_button.pack(side=tk.LEFT, padx=5)
 import_theme_button = ttk.Button(root, text="Import Theme", command=import_theme)
 import_theme_button.pack(side=tk.LEFT, padx=5)
 
-text_widgets = {}
 
 def bind_hotkeys():
     keyboard.add_hotkey('Ctrl+N', new_tab)
@@ -167,9 +212,14 @@ def bind_hotkeys():
     keyboard.add_hotkey("Ctrl+V", paste_text)
 
 
-
+root.iconbitmap("p22dlol.ico")
+plugins_directory = "plugins"
+if not os.path.exists(plugins_directory):
+    os.makedirs(plugins_directory)
+    
+plugin_manager = PluginManager()
+plugin_manager.load_plugins(plugins_directory)
 apply_theme() # Default theme
-new_tab()
 bind_hotkeys()
 
 root.mainloop()

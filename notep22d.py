@@ -10,7 +10,10 @@ import string
 import os
 import importlib
 import datetime
-
+username = os.getlogin()
+data_dir = f"C://Users//{username}//p22d"
+if not os.path.exists(data_dir):
+    sys.path.append(data_dir)
 class PluginManager:
     def __init__(self):
         self.plugins = []
@@ -20,7 +23,7 @@ class PluginManager:
         sys.path.append(directory)
         print(f"Loading plugins from {directory}")
 
-        logs_directory = "logs"
+        logs_directory = f"C://Users//{username}//p22d//logs"
         if not os.path.exists(logs_directory):
             os.makedirs(logs_directory)
 
@@ -136,6 +139,7 @@ def apply_theme(theme_data=None):
     if theme_data:
         style = ttk.Style()
 
+        # Сброс темы к значению по умолчанию
         style.theme_use('default')
 
         length = random.randint(7, 50)
@@ -151,6 +155,7 @@ def apply_theme(theme_data=None):
         fag = theme_data.get("Ttext", {}).get("configure", {}).get("fg")
         inbag = theme_data.get("Ttext", {}).get("configure", {}).get("insertbackground")
 
+        # Применение стиля ко всем виджетам текста в Notebook
         for widget in text_widgets:
             widget.configure(font=(font, 12))
             widget.configure(bg=bag, fg=fag)
@@ -205,12 +210,12 @@ def bind_hotkeys():
     keyboard.add_hotkey("Ctrl+V", paste_text)
 
 
-plugins_directory = "plugins"
+plugins_directory = f"C://Users//{username}//p22d//plugins"
 if not os.path.exists(plugins_directory):
     os.makedirs(plugins_directory)
-    
+plugins_directory = f"C://Users//{username}//p22d//plugins"
 plugin_manager = PluginManager()
-plugin_manager.load_plugins(plugins_directory)
+plugin_manager.load_plugins(directory=f"C://Users//{username}//p22d//plugins", root=root, tab_control=tab_control, text_widgets=text_widgets)
 apply_theme()
 bind_hotkeys()
 

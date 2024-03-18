@@ -1,37 +1,41 @@
 import tkinter as tk
 from tkinter import ttk
+from queue import Queue
+import threading
 import sys
-import time
+
+class Console(tk.Toplevel):
+    def __init__(self, parent):
+        tk.Toplevel.__init__(self, parent)
+        self.title("Console")
+
+        self.text_widget = tk.Text(self, wrap="word", state="disabled")
+        self.text_widget.pack(fill="both", expand=True)
+
+        self.queue = Queue()
+        sys.stdout = self
+
+        self.update_console()
+
+    def update_console(self):
+        while not self.queue.empty():
+            text = self.queue.get()
+            self.text_widget.configure(state="normal")
+            self.text_widget.insert(tk.END, text)
+            self.text_widget.configure(state="disabled")
+            self.text_widget.see(tk.END)
+        self.after(100, self.update_console)
+
+    def write(self, text):
+        self.queue.put(text)
 
 class Plugin:
-    def execute(self, **kwargs):
-        self.root = kwargs.get('root')
-        self.tab_control = kwargs.get('tab_control')
+    def __init__(self, api):
+        self.api = api
+        api.create_plugin_button("Console", self.open_console)
 
-        debug_button = ttk.Button(self.root, text="Check Debug", command=lambda: self.show_debug(self.root))
-        debug_button.pack(side=tk.LEFT, padx=5)
+    def open_console(self):
+        self.console = Console(self.api.root)
 
-    def show_debug(self, root):
-        debug_window = tk.Toplevel(root)
-        debug_window.title("Debug Window")
-        console_text = tk.Text(debug_window, wrap="word")
-        console_text.pack(expand=True, fill="both")
-        class ConsoleRedirector:
-            def write(self, message):
-                console_text.insert(tk.END, message)
-                console_text.yview(tk.END)
-
-        sys.stdout = ConsoleRedirector()
-
-        print("Debug information...")
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    root.title("Test Debug Plugin")
-    tab_control = ttk.Notebook(root)
-    tab_control.pack(fill="both", expand=True)
-
-    plugin = DebugPlugin()
-    plugin.execute(root=root, tab_control=tab_control)
-
-    root.mainloop()
+    def __del__(self):
+        sys.stdout = sys.__stdout__  # Восстановим стандартный вывод

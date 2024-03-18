@@ -1,7 +1,7 @@
 # notep22d
 notepad like in win11
 
-http://p22d.flumt.ru/ (not work rn)
+http://p22d.flumt.ru/
 
 26.12.23 -- 1.0
 
@@ -14,3 +14,5 @@ http://p22d.flumt.ru/ (not work rn)
 03.02.24 -- 1.2.1
 
 03.02.24 -- 1.2.2
+
+18.03.24 -- 1.3 // aka delta

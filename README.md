@@ -1,5 +1,6 @@
 # notep22d
 notepad like in win11
+![ico](https://github.com/UserForBruteer/notep22d/assets/114910606/0a71b396-585f-4f40-b4f9-17be05bb55b3)
 
 http://p22d.flumt.ru/
 

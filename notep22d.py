@@ -26,20 +26,19 @@ class PluginAPI:
         self.root = root
         self.tab_control = tab_control
         self.text_widgets = text_widgets
-        self.buttons = {}  # Словарь для хранения информации о кнопках
+        self.buttons = {}
     def search_word(self, text_widget, word):
-        positions = []  # Список для хранения позиций начала и конца каждого найденного слова
+        positions = []
         content = text_widget.get("1.0", tk.END)
-        pattern = rf"\b{re.escape(word)}\b"  # Используем \b для обозначения границ слова
+        pattern = rf"\b{re.escape(word)}\b"
         matches = re.finditer(pattern, content)
         for match in matches:
             start, end = match.span()
-            positions.append((start, end))  # Добавляем позицию начала и конца слова в список
+            positions.append((start, end))
         return positions
     def select_line(self, text_widget, line_number, color):
-        # Определите начальный и конечный индексы для выделения всей строки
-        start_index = f"{line_number}.0"  # Начало строки
-        end_index = f"{line_number + 1}.0"  # Начало следующей строки (не включая конец текущей)
+        start_index = f"{line_number}.0"
+        end_index = f"{line_number + 1}.0"
         print(start_index, end_index)
         text_widget.tag_add("search", start_index, end_index)
         text_widget.tag_config("search", background=color)
@@ -54,18 +53,18 @@ class PluginAPI:
     def create_plugin_button(self, name, function, button_id=None):
         button = ttk.Button(root, text=name, command=function)
         button.pack(side=tk.LEFT, padx=5)
-        if button_id:  # Если указан ID кнопки, сохраняем информацию о ней
+        if button_id:
             self.buttons[button_id] = {'button': button, 'name': name, 'function': function}
     def get_button_info(self, button_id):
-        return self.buttons.get(button_id)  # Возвращает информацию о кнопке по её ID
+        return self.buttons.get(button_id)
     def get_button_ids(self):
         return list(self.buttons.keys())
     def delete_button_by_id(self, button_id):
         button_info = self.buttons.get(button_id)
         if button_info:
             button = button_info['button']
-            button.pack_forget()  # Удаляем кнопку из интерфейса
-            del self.buttons[button_id]  # Удаляем информацию о кнопке из словаря
+            button.pack_forget()
+            del self.buttons[button_id]
     def import_theme(self):
         file_path = filedialog.askopenfilename(defaultextension=".json", filetypes=[("JSON Files", "*.json")])
         if file_path:

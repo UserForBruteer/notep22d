@@ -38,4 +38,4 @@ class Plugin:
         self.console = Console(self.api.root)
 
     def __del__(self):
-        sys.stdout = sys.__stdout__  # Восстановим стандартный вывод
+        sys.stdout = sys.__stdout__
